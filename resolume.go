@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/FlowingSPDG/resolume-go/internal"
+	"github.com/FlowingSPDG/resolume-go/models"
 )
 
 // Client API Client
@@ -30,11 +31,11 @@ func NewClient(host, port string) (*Client, error) {
 }
 
 // GetProduct Retrieve product information and version
-func (c *Client) GetProduct(ctx context.Context) (*ProductInfo, error) {
+func (c *Client) GetProduct(ctx context.Context) (*models.ProductInfo, error) {
 	res, err := c.c.GetProductWithResponse(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return (*ProductInfo)(res.JSON200), nil
+	return (*models.ProductInfo)(res.JSON200), nil
 }
