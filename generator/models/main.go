@@ -25,23 +25,31 @@ func main() {
 	flag.StringVar(&flagDest, "dest", "", "Destination file")
 	flag.Parse()
 
+	// Read Source file
 	src, err := os.ReadFile(flagSrc)
 	if err != nil {
 		panic(err)
 	}
 
+	// Remove Dest file
+	if err := os.Remove(flagDest); err != nil {
+		panic(err)
+	}
+	// Create Dest file
 	dest, err := os.OpenFile(flagDest, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		panic(err)
 	}
 	defer dest.Close()
+
+	// Initialize writer
 	w := bufio.NewWriter(dest)
 	if _, err := w.WriteString(prefix); err != nil {
 		panic(err)
 	}
 
-	// Create the AST by parsing src.
-	fset := token.NewFileSet() // positions are relative to fset
+	// Create AST
+	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, "src.go", src, 0)
 	if err != nil {
 		panic(err)
