@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"go/ast"
@@ -33,7 +32,7 @@ func main() {
 
 	// Remove Dest file
 	if err := os.Remove(flagDest); err != nil {
-		panic(err)
+		fmt.Println("File not found or failed to delete file")
 	}
 	// Create Dest file
 	dest, err := os.OpenFile(flagDest, os.O_WRONLY|os.O_CREATE, 0666)
@@ -42,9 +41,7 @@ func main() {
 	}
 	defer dest.Close()
 
-	// Initialize writer
-	w := bufio.NewWriter(dest)
-	if _, err := w.WriteString(prefix); err != nil {
+	if _, err := dest.WriteString(prefix); err != nil {
 		panic(err)
 	}
 
@@ -62,8 +59,11 @@ func main() {
 			for _, spec := range genDecl.Specs {
 				switch spec.(type) {
 				case *ast.TypeSpec:
-					typeSpec := spec.(*ast.TypeSpec)
-					if _, err := w.WriteString(fmt.Sprintf("type %s %s.%s\n", typeSpec.Name.Name, f.Name.Name, typeSpec.Name.Name)); err != nil {
+					typeSpec, ok := spec.(*ast.TypeSpec)
+					if !ok {
+						continue
+					}
+					if _, err := dest.WriteString(fmt.Sprintf("type %s %s.%s\n", typeSpec.Name.Name, f.Name.Name, typeSpec.Name.Name)); err != nil {
 						fmt.Println("Failed to write code :", err)
 						return
 					}

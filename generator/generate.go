@@ -4,6 +4,8 @@
 //go:generate goimports -w ../internal/oapi_types.gen.go
 //go:generate goimports -w ../internal/oapi_client.gen.go
 
-//go:generate go run ./models/main.go -src ../internal/oapi_types.gen.go -dest ../models/models.gen.go
-//go:generate goimports -w ../models/models.gen.go
+//go:generate go run ./models/main.go -src ../internal/oapi_types.gen.go -dest ../models/types.gen.go
+//go:generate go run ./models/main.go -src ../internal/oapi_client.gen.go -dest ../models/client.gen.go
+//go:generate goimports -w ../models/types.gen.go
+//go:generate goimports -w ../models/client.gen.go
 package resolume
