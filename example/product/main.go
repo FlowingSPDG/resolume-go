@@ -1,25 +1,30 @@
 package main
 
 import (
-	"context"
 	"fmt"
+	"log"
 
 	"github.com/FlowingSPDG/resolume-go"
 )
 
 func main() {
-	c, err := resolume.NewClient("localhost", "8080")
+	// Create a new Resolume client
+	client, err := resolume.NewClient("localhost", "8080")
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to create client: %v", err)
 	}
 
-	ctx := context.Background()
-	product, err := c.GetProduct(ctx)
+	// Get product information
+	product, err := client.GetProduct()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to get product info: %v", err)
 	}
 
-	fmt.Println("Product:", *product.Name)
-	fmt.Printf("Version: %d.%d.%d\n", *product.Major, *product.Minor, *product.Micro)
-	fmt.Println("Revision:", *product.Revision)
+	// Print product information
+	fmt.Printf("Product: %s\n", product.Name)
+	fmt.Printf("Version: %d.%d.%d (revision %d)\n",
+		product.Major,
+		product.Minor,
+		product.Micro,
+		product.Revision)
 }
