@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -8,6 +9,8 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	// Create a new client
 	client, err := resolume.NewClient("localhost", "8080")
 	if err != nil {
@@ -15,7 +18,7 @@ func main() {
 	}
 
 	// Get available effects
-	effects, err := client.GetEffects()
+	effects, err := client.GetEffects(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -35,7 +38,7 @@ func main() {
 	fmt.Println()
 
 	// Get available sources
-	sources, err := client.GetSources()
+	sources, err := client.GetSources(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}

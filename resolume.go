@@ -2,6 +2,7 @@ package resolume
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -33,39 +34,39 @@ func NewClient(host, port string) (*Client, error) {
 }
 
 // GetProduct retrieves product information
-func (c *Client) GetProduct() (*ProductInfo, error) {
+func (c *Client) GetProduct(ctx context.Context) (*ProductInfo, error) {
 	endpoint := "/product"
 	var product ProductInfo
-	if err := c.get(endpoint, &product); err != nil {
+	if err := c.get(ctx, endpoint, &product); err != nil {
 		return nil, err
 	}
 	return &product, nil
 }
 
 // GetEffects retrieves available effects
-func (c *Client) GetEffects() (*Effects, error) {
+func (c *Client) GetEffects(ctx context.Context) (*Effects, error) {
 	endpoint := "/effects"
 	var effects Effects
-	if err := c.get(endpoint, &effects); err != nil {
+	if err := c.get(ctx, endpoint, &effects); err != nil {
 		return nil, err
 	}
 	return &effects, nil
 }
 
 // GetSources retrieves available sources
-func (c *Client) GetSources() (*Sources, error) {
+func (c *Client) GetSources(ctx context.Context) (*Sources, error) {
 	endpoint := "/sources"
 	var sources Sources
-	if err := c.get(endpoint, &sources); err != nil {
+	if err := c.get(ctx, endpoint, &sources); err != nil {
 		return nil, err
 	}
 	return &sources, nil
 }
 
 // GetDummyThumbnail retrieves the dummy thumbnail used for clips without a thumbnail
-func (c *Client) GetDummyThumbnail() (io.ReadCloser, error) {
+func (c *Client) GetDummyThumbnail(ctx context.Context) (io.ReadCloser, error) {
 	endpoint := "/composition/thumbnail/dummy"
-	resp, err := c.getRaw(endpoint)
+	resp, err := c.getRaw(ctx, endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +74,9 @@ func (c *Client) GetDummyThumbnail() (io.ReadCloser, error) {
 }
 
 // GetClipThumbnail retrieves the thumbnail for a specific clip
-func (c *Client) GetClipThumbnail(layerIndex, clipIndex int) (io.ReadCloser, error) {
+func (c *Client) GetClipThumbnail(ctx context.Context, layerIndex, clipIndex int) (io.ReadCloser, error) {
 	endpoint := fmt.Sprintf("/composition/layers/%d/clips/%d/thumbnail", layerIndex, clipIndex)
-	resp, err := c.getRaw(endpoint)
+	resp, err := c.getRaw(ctx, endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +84,7 @@ func (c *Client) GetClipThumbnail(layerIndex, clipIndex int) (io.ReadCloser, err
 }
 
 // SetClipThumbnail sets a custom thumbnail for a specific clip
-func (c *Client) SetClipThumbnail(layerIndex, clipIndex int, thumbnail io.Reader) error {
+func (c *Client) SetClipThumbnail(ctx context.Context, layerIndex, clipIndex int, thumbnail io.Reader) error {
 	endpoint := fmt.Sprintf("/composition/layers/%d/clips/%d/thumbnail", layerIndex, clipIndex)
 
 	// Create multipart form
@@ -94,7 +95,7 @@ func (c *Client) SetClipThumbnail(layerIndex, clipIndex int, thumbnail io.Reader
 	contentType := fmt.Sprintf("multipart/form-data; boundary=%s", writer.Boundary())
 
 	// Send request
-	req, err := http.NewRequest(http.MethodPost, c.url(endpoint), body)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.url(endpoint), body)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %v", err)
 	}
@@ -115,9 +116,9 @@ func (c *Client) SetClipThumbnail(layerIndex, clipIndex int, thumbnail io.Reader
 }
 
 // ResetClipThumbnail resets a clip's thumbnail to the default
-func (c *Client) ResetClipThumbnail(layerIndex, clipIndex int) error {
+func (c *Client) ResetClipThumbnail(ctx context.Context, layerIndex, clipIndex int) error {
 	endpoint := fmt.Sprintf("/composition/layers/%d/clips/%d/thumbnail", layerIndex, clipIndex)
-	return c.delete(endpoint)
+	return c.delete(ctx, endpoint)
 }
 
 // Error represents an API error response
@@ -131,8 +132,8 @@ func (e *Error) Error() string {
 }
 
 // get performs a GET request to the specified endpoint and decodes the JSON response
-func (c *Client) get(endpoint string, v interface{}) error {
-	resp, err := c.getRaw(endpoint)
+func (c *Client) get(ctx context.Context, endpoint string, v interface{}) error {
+	resp, err := c.getRaw(ctx, endpoint)
 	if err != nil {
 		return err
 	}
@@ -146,8 +147,8 @@ func (c *Client) get(endpoint string, v interface{}) error {
 }
 
 // getRaw performs a GET request and returns the raw response
-func (c *Client) getRaw(endpoint string) (*http.Response, error) {
-	req, err := http.NewRequest(http.MethodGet, c.url(endpoint), nil)
+func (c *Client) getRaw(ctx context.Context, endpoint string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.url(endpoint), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
@@ -170,22 +171,22 @@ func (c *Client) getRaw(endpoint string) (*http.Response, error) {
 }
 
 // post performs a POST request to the specified endpoint
-func (c *Client) post(endpoint string, body interface{}, v interface{}) error {
-	return c.doRequest(http.MethodPost, endpoint, body, v)
+func (c *Client) post(ctx context.Context, endpoint string, body interface{}, v interface{}) error {
+	return c.doRequest(ctx, http.MethodPost, endpoint, body, v)
 }
 
 // put performs a PUT request to the specified endpoint
-func (c *Client) put(endpoint string, body interface{}, v interface{}) error {
-	return c.doRequest(http.MethodPut, endpoint, body, v)
+func (c *Client) put(ctx context.Context, endpoint string, body interface{}, v interface{}) error {
+	return c.doRequest(ctx, http.MethodPut, endpoint, body, v)
 }
 
 // delete performs a DELETE request to the specified endpoint
-func (c *Client) delete(endpoint string) error {
-	return c.doRequest(http.MethodDelete, endpoint, nil, nil)
+func (c *Client) delete(ctx context.Context, endpoint string) error {
+	return c.doRequest(ctx, http.MethodDelete, endpoint, nil, nil)
 }
 
 // doRequest performs an HTTP request
-func (c *Client) doRequest(method, endpoint string, body, v interface{}) error {
+func (c *Client) doRequest(ctx context.Context, method, endpoint string, body, v interface{}) error {
 	url := c.url(endpoint)
 
 	var bodyReader io.Reader
@@ -197,7 +198,7 @@ func (c *Client) doRequest(method, endpoint string, body, v interface{}) error {
 		bodyReader = bytes.NewReader(bodyBytes)
 	}
 
-	req, err := http.NewRequest(method, url, bodyReader)
+	req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %v", err)
 	}
