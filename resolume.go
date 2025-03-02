@@ -32,15 +32,6 @@ func NewClient(host, port string) (*Client, error) {
 	}, nil
 }
 
-// ProductInfo represents information about the Resolume product
-type ProductInfo struct {
-	Name     string `json:"name"`
-	Major    int64  `json:"major"`
-	Minor    int64  `json:"minor"`
-	Micro    int64  `json:"micro"`
-	Revision int64  `json:"revision"`
-}
-
 // GetProduct retrieves product information
 func (c *Client) GetProduct() (*ProductInfo, error) {
 	endpoint := "/product"
@@ -51,21 +42,6 @@ func (c *Client) GetProduct() (*ProductInfo, error) {
 	return &product, nil
 }
 
-// Effect represents a single effect
-type Effect struct {
-	IDString string `json:"idstring"`
-	Name     string `json:"name"`
-	Presets  []struct {
-		ID   int64  `json:"id"`
-		Name string `json:"name"`
-	} `json:"presets"`
-}
-
-// Effects represents available effects for clips, layers, and composition
-type Effects struct {
-	Video []Effect `json:"video"`
-}
-
 // GetEffects retrieves available effects
 func (c *Client) GetEffects() (*Effects, error) {
 	endpoint := "/effects"
@@ -74,21 +50,6 @@ func (c *Client) GetEffects() (*Effects, error) {
 		return nil, err
 	}
 	return &effects, nil
-}
-
-// Source represents a source that can be used in a clip
-type Source struct {
-	IDString string `json:"idstring"`
-	Name     string `json:"name"`
-	Presets  []struct {
-		ID   int64  `json:"id"`
-		Name string `json:"name"`
-	} `json:"presets"`
-}
-
-// Sources represents available sources for clips
-type Sources struct {
-	Video []Source `json:"video"`
 }
 
 // GetSources retrieves available sources
