@@ -1,6 +1,7 @@
 package resolume
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -43,7 +44,7 @@ func TestGetProduct(t *testing.T) {
 	}
 
 	// Test GetProduct
-	product, err := client.GetProduct()
+	product, err := client.GetProduct(context.Background())
 	if err != nil {
 		t.Errorf("GetProduct() error = %v", err)
 		return
@@ -90,7 +91,7 @@ func TestGetEffects(t *testing.T) {
 	}
 
 	// Test GetEffects
-	effects, err := client.GetEffects()
+	effects, err := client.GetEffects(context.Background())
 	if err != nil {
 		t.Errorf("GetEffects() error = %v", err)
 		return
@@ -138,7 +139,7 @@ func TestGetSources(t *testing.T) {
 	}
 
 	// Test GetSources
-	sources, err := client.GetSources()
+	sources, err := client.GetSources(context.Background())
 	if err != nil {
 		t.Errorf("GetSources() error = %v", err)
 		return

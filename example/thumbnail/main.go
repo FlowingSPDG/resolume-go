@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -10,6 +11,7 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
 	// Create a new client
 	client, err := resolume.NewClient("localhost", "8080")
 	if err != nil {
@@ -17,7 +19,7 @@ func main() {
 	}
 
 	// Get dummy thumbnail
-	dummyThumbnail, err := client.GetDummyThumbnail()
+	dummyThumbnail, err := client.GetDummyThumbnail(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,7 +38,7 @@ func main() {
 	fmt.Println("Saved dummy thumbnail to dummy_thumbnail.png")
 
 	// Get clip thumbnail
-	clipThumbnail, err := client.GetClipThumbnail(1, 1) // Layer 1, Clip 1
+	clipThumbnail, err := client.GetClipThumbnail(ctx, 1, 1) // Layer 1, Clip 1
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,13 +63,13 @@ func main() {
 	}
 	defer customThumbnail.Close()
 
-	if err := client.SetClipThumbnail(1, 1, customThumbnail); err != nil {
+	if err := client.SetClipThumbnail(ctx, 1, 1, customThumbnail); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Set custom thumbnail for Layer 1, Clip 1")
 
 	// Reset thumbnail to default
-	if err := client.ResetClipThumbnail(1, 1); err != nil {
+	if err := client.ResetClipThumbnail(ctx, 1, 1); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Reset thumbnail for Layer 1, Clip 1 to default")
