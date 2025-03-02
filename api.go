@@ -207,6 +207,12 @@ func (c *Client) SelectLayer(layerIndex int64) error {
 	return c.post(endpoint, nil, nil)
 }
 
+// SelectLayerClip selects the clip by index
+func (c *Client) SelectLayerClip(layerIndex, clipIndex int) error {
+	endpoint := fmt.Sprintf("/composition/layers/%d/clips/%d/select", layerIndex, clipIndex)
+	return c.post(endpoint, nil, nil)
+}
+
 // ClearLayer disconnects any playing clips in the layer by index
 func (c *Client) ClearLayer(layerIndex int64) error {
 	endpoint := fmt.Sprintf("/composition/layers/%d/clear", layerIndex)
